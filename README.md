@@ -1,4 +1,4 @@
-# 大藏经数据相关相关工作
+# 大藏经数据相关工作
 - OCR Transform
 
     深度学习OCR识别的结果，以图片YB_34_216.jpg为例，其结果为YB_34_216.txt，表示《永乐北藏》第34册第216页的识别结果。这个结果需要转化为古籍平台系统可用的文件格式。其中，坐标信息转化为json格式，格式见模板ocr-transform/template.json文件，结果文件目录及命名规则如：pos/YB/34/YB_34_216.json。文本信息转化为txt格式，格式见ocr-transform/template.txt文件，结果文件目录及命名规则如：txt/YB/34/YB_34_216.txt。
