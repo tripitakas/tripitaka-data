@@ -97,7 +97,8 @@ def transform_files(txt_path, dst_path, only_name=None):
         if info:
             json_path = path.join(dst_path, *name.split('_')[:-1])
             create_folders(json_path)
-            save_json(info, path.join(json_path, re.sub(r'\..*$', '.json', name)))
+            save_json(info, path.join(json_path, re.sub(r'\..*$', '.json', name)),
+                      sort_keys=['imgname', 'imgsize', 'blocks', 'columns', 'chars'])
 
 
 if __name__ == '__main__':

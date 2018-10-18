@@ -22,4 +22,10 @@ def load_json(filename, warning=False):
 
 def save_json(obj, filename, sort_keys=False):
     with open(filename, 'w') as f:
-        json.dump(obj, f, ensure_ascii=False, sort_keys=sort_keys)
+        if isinstance(sort_keys, list):
+            items = [(n, json.dumps(obj[n], ensure_ascii=False)) for n in sort_keys if n in obj]
+            extra = [(n, json.dumps(obj[n], ensure_ascii=False)) for n in obj if n not in sort_keys]
+            s = ',\n'.join(['"%s": %s' % (n, v) for n, v in (items + extra)])
+            f.write('{' + s + '\n}')
+        else:
+            json.dump(obj, f, ensure_ascii=False, sort_keys=sort_keys)
