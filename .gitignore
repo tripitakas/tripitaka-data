@@ -19,3 +19,4 @@ __pycache__/
 ocr-transform/block-pos/
 ocr-transform/cut-result/
 ocr-transform/char-pos/
+page-txt-search/cmp-txt/

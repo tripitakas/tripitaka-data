@@ -5,7 +5,7 @@
   <title>{{cut['imgname']}}</title>
 </head>
 <body>
-<p id="info"></p>
+<p id="info" style="position: absolute; z-index: 100"></p>
 <div id="holder"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
@@ -18,21 +18,24 @@
     var paper = Raphael('holder', s(w), s(h));
 
     {% for b in cut['blocks'] %}
-    paper.rect(s({{b['x']}}), s({{b['y']}}), s({{b['w']}}), s({{b['h']}})).attr({'stroke': '#00f'});
+    paper.rect(s({{b['x']}}), s({{b['y']}}), s({{b['w']}}), s({{b['h']}})).attr({stroke: '#00f'});
     {% end %}
 
     {% for b in cut['columns'] %}
-    paper.rect(s({{b['x']}}), s({{b['y']}}), s({{b['w']}}), s({{b['h']}})).attr({'stroke': 'rgba(200,200,200,.5)'});
+    paper.rect(s({{b['x']}}), s({{b['y']}}), s({{b['w']}}), s({{b['h']}})).attr({stroke: 'rgba(200,200,200,.5)'});
     {% end %}
 
     {% for b in cut['chars'] %}
-    paper.rect(s({{b['x']}}), s({{b['y']}}), s({{b['w']}}), s({{b['h']}})).attr({'stroke': '#0f0'})
+    paper.rect(s({{b['x']}}), s({{b['y']}}), s({{b['w']}}), s({{b['h']}}))
+        .attr({stroke: /b0|c0/.test('{{b["char_id"]}}') ? '#f00' : '#0f0'})
         .hover(function () {
           this.attr({fill: 'rgba(0,0,255,.2)'});
           $('#info').text('{{b["char_id"]}}');
         }, function () {
           this.attr({fill: 'none'});
         });
+    paper.text(s({{b['x'] + b['w'] / 2}}), s({{b['y'] + b['h'] / 2}}),
+        '{{b["char_id"][2:]}}').attr({'font-size': 8});
     {% end %}
   });
 </script>
