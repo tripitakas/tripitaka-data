@@ -16,4 +16,6 @@ __pycache__/
 *.py[cod]
 
 ## Configure for this project
-ocr-transform/pos/
+ocr-transform/block-pos/
+ocr-transform/cut-result/
+ocr-transform/char-pos/

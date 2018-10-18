@@ -1,42 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# 基于 block-pos/**/*.json 栏切分数据，将OCR文本 cut-result/*.txt 转换为 char-pos 下的列切分和字切分的JSON文件.
 
 import re
-import json
-from os import path, mkdir
+from os import path
 from glob import glob
-
-
-def create_folders(filename, level=3):
-    if level > 0:
-        create_folders(path.dirname(filename), level - 1)
-    if filename and not path.exists(filename):
-        mkdir(filename)
-
-
-def load_json(filename, warning=False):
-    if path.exists(filename):
-        try:
-            with open(filename) as f:
-                return json.load(f)
-        except Exception as e:
-            print(filename, e)
-    elif warning:
-        print('%s not exist' % filename)
-
-
-def save_json(obj, filename, sort_keys=False):
-    with open(filename, 'w') as f:
-        json.dump(obj, f, ensure_ascii=False, sort_keys=sort_keys)
+from file_util import create_folders, load_json, save_json
 
 
 def get_block_json(filename):
+    """ 得到页面文件名对应的栏切分数据 """
     filename = path.basename(filename)
     filename = path.join('block-pos', *filename.split('_')[:-1], re.sub(r'\..*$', '.json', filename))
     return load_json(filename, True)
 
 
 def get_block_no(blocks, x, y, w, h, filename):
+    """ 根据框坐标查找所属的栏的序号，0为找不到 """
     for i, b in enumerate(blocks):
         if x > b['x'] - 5 and y > b['y'] - 5 and x + w < b['x'] + b['w'] + 5 and y + h < b['y'] + b['h'] + 5:
             return i + 1
@@ -45,6 +25,7 @@ def get_block_no(blocks, x, y, w, h, filename):
 
 
 def transform_file(txt_file):
+    """ 处理OCR文本，输出列切分和字切分的JSON文件 """
     with open(txt_file) as f:
         lines = f.readlines()
 
@@ -84,15 +65,15 @@ def transform_file(txt_file):
     return info
 
 
-def transform_files(txt_path):
+def transform_files(txt_path, dst_path):
     for txt_file in glob(path.join(txt_path, '*.txt')):
         info = '_' in txt_file and transform_file(txt_file)
         if info:
             name = path.basename(txt_file)
-            json_path = path.join('pos', *name.split('_')[:-1])
+            json_path = path.join(dst_path, *name.split('_')[:-1])
             create_folders(json_path)
             save_json(info, path.join(json_path, re.sub(r'\..*$', '.json', name)))
 
 
 if __name__ == '__main__':
-    transform_files('.')
+    transform_files('cut-result', 'char-pos')
