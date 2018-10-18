@@ -48,7 +48,8 @@ def transform_file(txt_file):
     def end_column():
         if chars:
             num = sorted([c['no'] for c in chars])
-            for i, c in enumerate(sorted(chars, key=itemgetter('y'))):
+            chars.sort(key=itemgetter('y'))
+            for i, c in enumerate(chars):
                 c['no'] = num[i]
                 cid = c['char_id'].split('c')
                 cid[-1] = str(num[i])
