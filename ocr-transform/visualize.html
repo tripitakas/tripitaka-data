@@ -5,7 +5,7 @@
   <title>{{cut['imgname']}}</title>
 </head>
 <body>
-<p id="info" style="position: fixed; z-index: 100"></p>
+<p id="info" style="position: fixed; z-index: 100; background-color: rgba(255,255,255,.7); margin: 0; padding: 6px 10px"></p>
 <div id="holder"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
@@ -17,15 +17,19 @@
     var s = function (x) { return x * scale; };
     var paper = Raphael('holder', s(w), s(h));
     var r, oldFill;
+    var columnColor = 'rgba(200,200,200,.5)', columnFill = 'rgba(200,200,200,.01)';
+    var errColor = '#f00', charColor = '#0f0', charFill = 'rgba(0,255,0,.1)';
 
     function hoverIn(id, x, y, w, h) {
       oldFill = this.attr('fill');
-      this.attr({fill: 'rgba(0,0,255,.2)'});
+      this.attr({fill: 'rgba(0,0,255,' + (/^char/.test(id) ? 0.2 : 0.02) + ')'});
       $('#info').text(id + ' (' + x + ', ' + y + ') ' + w + 'x' + h);
     }
     function hoverOut() {
       this.attr({fill: oldFill});
     }
+
+    paper.rect(0, 0, s(w), s(h)).attr({stroke: 'rgba(0,0,0,.1)'});
 
     {% for b in cut['blocks'] %}
     r = paper.rect(s({{b['x'] - 2}}), s({{b['y'] - 2}}), s({{b['w'] + 4}}), s({{b['h'] + 4}}))
@@ -35,13 +39,13 @@
 
     {% for b in cut['columns'] %}
     r = paper.rect(s({{b['x']}}), s({{b['y']}}), s({{b['w']}}), s({{b['h']}}))
-      .attr({stroke: 'rgba(200,200,200,.5)', fill: 'rgba(200,200,200,.01)'});
+      .attr({stroke: columnColor, fill: columnFill});
     r.hover(hoverIn.bind(r, 'column {{b["column_id"]}}', {{b["x"]}}, {{b["y"]}}, {{b["w"]}}, {{b["h"]}}), hoverOut);
     {% end %}
 
     {% for b in cut['chars'] %}
     r = paper.rect(s({{b['x']}}), s({{b['y']}}), s({{b['w']}}), s({{b['h']}}))
-        .attr({stroke: /b0|c0/.test('{{b["char_id"]}}') ? '#f00' : '#0f0', fill: 'rgba(0,255,0,.1)'});
+        .attr({stroke: {{'errColor' if 'b0' in b["char_id"] or 'c0' in b["char_id"] else 'charColor'}}, fill: charFill});
     r.hover(hoverIn.bind(r, 'char {{b["char_id"]}}', {{b["x"]}}, {{b["y"]}}, {{b["w"]}}, {{b["h"]}}), hoverOut);
     paper.text(s({{b['x'] + b['w'] / 2}}), s({{b['y'] + b['h'] / 2}}),
         '{{b["char_id"][2:]}}').attr({'font-size': 8});

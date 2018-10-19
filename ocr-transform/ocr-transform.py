@@ -43,19 +43,39 @@ def transform_file(txt_file):
     line_no = 0
     char_no = 0
     chars = []
+    columns = []
 
-    # 按Y坐标对一列字重新编号
+    # 结束一列字
     def end_column():
-        if chars:
-            num = sorted([c['no'] for c in chars])
-            chars.sort(key=itemgetter('y'))
-            for i, c in enumerate(chars):
-                c['no'] = num[i]
-                cid = c['char_id'].split('c')
-                cid[-1] = str(num[i])
-                c['char_id'] = 'c'.join(cid)
-            info['chars'].extend(chars)
-            del chars[:]
+        if chars and columns:
+            columns[-1]['chars'] = chars[:]
+        del chars[:]
+
+    # 按X坐标对一栏中的列重新编号，按Y坐标对一列字重新编号
+    def end_block():
+        if columns:
+            col_num = sorted([c['no'] for c in columns])
+            columns.sort(key=itemgetter('x'), reverse=True)
+            for i, col in enumerate(columns):
+                col['no'] = col_num[i]
+                cid = col['column_id'].split('c')
+                cid[-1] = str(col_num[i])
+                col['column_id'] = 'c'.join(cid)
+
+                if 'chars' in col:
+                    c_chars = col['chars']
+                    num = sorted([c['no'] for c in c_chars])
+                    c_chars.sort(key=itemgetter('y'))
+                    for j, c in enumerate(c_chars):
+                        c['no'] = num[j]
+                        cid = c['char_id'].split('c')
+                        cid[2] = str(num[j])
+                        cid[1] = str(col_num[i])
+                        c['char_id'] = 'c'.join(cid)
+                    info['chars'].extend(c_chars)
+                    del col['chars']
+            info['columns'].extend(columns)
+            del columns[:]
 
     # 读取OCR识别的每一行文字（列、字）
     for row_i, text in enumerate(lines[1:]):
@@ -64,28 +84,30 @@ def transform_file(txt_file):
         x, y, w, h = [int(s) for s in cols[:4]]
         cc = float(cols[4])
 
-        # 遇到列，则递增列号，准备重置字序号
+        # 找到所属栏，在栏外就丢弃
+        column_now = get_block_no(blocks, x, y, w, h, txt_file, row_i)
+        if not column_now:
+            continue
+
+        # 如果遇到列，则递增列号，重置字序号，栏号变了就结束前一栏
         if len(cols) > 5:
             line_no += 1
-            column = 0
-
-        # 找到所属栏，栏号变了就重置字序号
-        column_now = get_block_no(blocks, x, y, w, h, txt_file, row_i)
-        if column != column_now or not column:
-            column = column_now
             char_no = 0
             end_column()
+            if column != column_now:
+                column = column_now
+                line_no = 1
+                end_block()
 
-        if len(cols) > 5:
-            end_column()
             txt = ''.join(cols[5:])
-            info['columns'].append(dict(x=x, y=y, w=w, h=h, cc=cc, txt=txt, no=line_no,
-                                        column_id='b%dc%d' % (column, line_no)))
+            columns.append(dict(x=x, y=y, w=w, h=h, cc=cc, txt=txt, no=line_no,
+                                column_id='b%dc%d' % (column, line_no)))
         else:
             char_no += 1
             chars.append(dict(x=x, y=y, w=w, h=h, cc=cc, no=char_no,
                               char_id='b%dc%dc%d' % (column, line_no, char_no)))
     end_column()
+    end_block()
 
     return info
 
@@ -103,5 +125,5 @@ def transform_files(txt_path, dst_path, only_name=None):
 
 
 if __name__ == '__main__':
-    # transform_files('cut-result', 'char-pos', 'GL_1047_1_21')
+    # transform_files('cut-result', 'char-pos', 'YB_28_619')
     transform_files('cut-result', 'char-pos')
