@@ -3,9 +3,11 @@
 
     深度学习OCR识别的结果，以图片YB_22_713.jpg为例，其结果为YB_22_713.txt，表示《永乐北藏》第22册第713页的识别结果。
     
-    这个结果需要转化为古籍平台系统可用的文件格式。其中，坐标信息转化为json格式，格式见模板ocr-transform/template.json文件，结果文件目录及命名规则如：pos/YB/22/YB_22_713.json。
+    这个结果需要转化为古籍平台系统可用的文件格式，包括切分信息和文本信息。
     
-    文本信息转化为txt格式，格式见ocr-transform/template.txt文件，结果文件目录及命名规则如：txt/YB/22/YB_22_713.txt。
+    其中，切分信息转化为json格式（见模板ocr-transform/template.json文件），结果文件目录及命名规则如：char-pos/YB/22/YB_22_713.json。转换时，需要用到切栏信息的辅助，切栏信息放在block-pos目录下。需要注意的是，OCR是在原图上进行处理，需要将坐标信息等比转化为宽度为1200的小图上。
+    
+    文本信息转化为txt格式，格式见ocr-transform/template.txt文件，结果文件目录及命名规则如：ocr-txt/YB/22/YB_22_713.txt。
 
     ocr-transform.py所完成的工作，就是这个转换过程。需要注意的是，图片命名除了三层结构，如YB_22_713.jpg，还有四层结构，如GL_1_1_1.jpg。程序要考虑这个兼容性。
 
