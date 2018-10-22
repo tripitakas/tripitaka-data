@@ -143,9 +143,9 @@ CREATE TABLE IF NOT EXISTS data_page (
   env_no int DEFAULT NULL, -- '函序号'
   vol_no int DEFAULT NULL, -- '册序号'
   vol_page_no int DEFAULT NULL, -- '册内页序号'
-  block_pos_status varchar(128) DEFAULT NULL, -- '栏坐标状态。未就位，已OCR，已审定'
-  column_pos_status varchar(1024) DEFAULT NULL, -- '列坐标状态。未就位，已OCR，已审定'
-  char_pos_status text DEFAULT NULL, -- '字坐标状态。未就位，已OCR，已审定'
+  block_cut_status varchar(128) DEFAULT NULL, -- '栏坐标状态。未就位，已OCR，已审定'
+  column_cut_status varchar(1024) DEFAULT NULL, -- '列坐标状态。未就位，已OCR，已审定'
+  char_cut_status text DEFAULT NULL, -- '字坐标状态。未就位，已OCR，已审定'
   txt_status text DEFAULT NULL, -- '文字状态。未就位，已OCR，已审定'
   remark varchar(128) DEFAULT NULL, -- '备注'
   created_by int DEFAULT NULL,
@@ -176,8 +176,8 @@ CREATE TABLE IF NOT EXISTS data_char (
   column_no smallint DEFAULT NULL, -- '列序号'
   char_no smallint DEFAULT NULL, -- '字序号'
   txt varchar(8) DEFAULT NULL, -- '文字'
-  txt_probability float DEFAULT NULL, -- '文字置信度'
-  pos_probability float DEFAULT NULL, -- '切分置信度'
+  txt_confidence float DEFAULT NULL, -- '文字置信度'
+  cut_confidence float DEFAULT NULL, -- '切分置信度'
   image_status varchar(256) DEFAULT NULL, -- '图片状态。未就位，已就位'
   remark varchar(128) DEFAULT NULL, -- '备注'
   created_by int DEFAULT NULL,
@@ -185,6 +185,9 @@ CREATE TABLE IF NOT EXISTS data_char (
   created_at int DEFAULT NULL,
   updated_at int DEFAULT NULL
 );
+
+
+
 
 
 -- 切分校对状态cut_status
