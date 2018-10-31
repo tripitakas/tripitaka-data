@@ -114,14 +114,21 @@ def transform_file(txt_file):
 
 def transform_files(txt_path, dst_path, only_name=None):
     """ 转换指定目录下的所有TXT文件，可以指定只转换特定前缀的文件 """
+    index = {}
     for txt_file in glob(path.join(txt_path, '*.txt')):
         name = path.basename(txt_file)
         info = '_' in txt_file and (not only_name or only_name in name) and transform_file(txt_file)
         if info:
-            json_path = path.join(dst_path, *name.split('_')[:-1])
+            parts = name.replace('.', '_').split('_')[:-1]
+            index[parts[0]] = index.get(parts[0], []) + [(int(parts[1]), int(parts[2]), '_'.join(parts[3:]))]
+            json_path = path.join(dst_path, *parts[:-1])
             create_folders(json_path)
             save_json(info, path.join(json_path, re.sub(r'\..*$', '.json', name)),
                       sort_keys=['imgname', 'imgsize', 'blocks', 'columns', 'chars'])
+    for name, parts in index.items():
+        parts.sort(key=itemgetter(0, 1, 2))
+        index[name] = ['%s_%d_%d_%s' % (name, p[0], p[1], p[2]) for p in parts]
+    save_json(index, 'index.json')
 
 
 if __name__ == '__main__':
